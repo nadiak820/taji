@@ -95,7 +95,7 @@ az acr create --resource-group dev-cnl-bb-app --name cnlplaedptest --sku Basic -
 
 az login
 
-az acr login --name cnlplaedptest --resource-group dev-cnl-bb-app
+az acr login --name cnlplaedptest --resource-group dev-cnl-bb-app  {To login Azure Container}
 
 docker images
 
