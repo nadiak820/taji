@@ -106,7 +106,7 @@ docker pull mcr.microsoft.com/dotnet/core/samples:aspnetapp
 
 Prepare your downloaded sample image towards Microsoft Repository standards 
 
-docker tag <your custom image> <ACRName>.azurecr.io/<imagenameofchoice>
+docker tag <your custom image> <ACRName>.azurecr.io/<imagenameofchoice>  {122 line number reference & note msapp can be any name}
 
 now in the above command replace like this below
 
