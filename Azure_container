@@ -69,7 +69,7 @@ systemctl status docker
 
 #Enable the Docker service to be automatically started at boot time:
 
-systemctl enable docker
+systemctl enable docker  (Optional)
 
 #At the time of the writing of this article, the current stable version of Docker is 18.03.1, we can check our Docker version by typing:
 
