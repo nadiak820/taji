@@ -1,4 +1,4 @@
-Install Mirantis Container Runtime: (Docker Engine)
+###Install Mirantis Container Runtime: (Docker Engine)
 -------------------------------------------------------
 https://docs.mirantis.com/mcr/20.10/qs-ubuntu/install-ubuntu.html
 sudo apt-get --yes remove docker docker-engine docker-ce docker-ce-cli docker.io
@@ -13,30 +13,30 @@ sudo apt-get update
 sudo apt-get --yes install docker-ee docker-ee-cli containerd.io
 
 
-Install Mirantis Kubernetes Engine: (Docker and Kubernetes Orchestrator)
+###Install Mirantis Kubernetes Engine: (Docker and Kubernetes Orchestrator)
 ------------------------------------------------------------------------
 https://docs.mirantis.com/mke/3.5/install/install-mke-image.html
 sudo docker run --interactive --name ucp --rm --tty --volume /var/run/docker.sock:/var/run/docker.sock mirantis/ucp:3.5.3 install --host-address $( hostname --ip-address ) --interactive --force-minimums
 
 
-Uninstall Mirantis Kubernetes Engine:
+###Uninstall Mirantis Kubernetes Engine:
 -------------------------------------
 sudo docker container run --rm -it -v /var/run/docker.sock:/var/run/docker.sock --name ucp mirantis/ucp:3.5.3 uninstall-ucp --interactive
 
 
-Install Mirantis Secure Registry: (Docker Trusted Registry)
+###Install Mirantis Secure Registry: (Docker Trusted Registry)
 -------------------------------------------------------------
 https://docs.mirantis.com/msr/2.9/install/install-online.html
 sudo docker run -it --rm mirantis/dtr:2.9.7 install --ucp-insecure-tls --ucp-url $( hostname --ip-address ):443
 
 
-Documentation:
+##Documentation:
 --------------
 https://docs.mirantis.com/mke/3.5/ops.html
 https://docs.mirantis.com/msr/2.9/ops.html
 
 
-Security:
+##Security:
 ----------------------------------------------------------------------------------------------
 sudo docker pull mysql:8.0.29
 sudo docker pull mysql@sha256:0c0beeac7ca1937d60f54e1fb0c4a5c0b0ffee2aae37488fbc9f5ea301425551
