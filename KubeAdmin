@@ -86,3 +86,4 @@ kube-system   kube-scheduler-master.example.com            1/1     Running   0  
 kube-system   weave-net-6kmwk                              2/2     Running   3 (16m ago)   18m
 kube-system   weave-net-kkh6z                              2/2     Running   3 (16m ago)   17m
 kube-system   weave-net-ngkmf                              2/2     Running   1 (27m ago)   27m
+
