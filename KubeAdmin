@@ -1,0 +1,39 @@
+#Type the following command on the master node:
+sudo hostnamectl set-hostname master.example.com
+exec bash
+
+#Type the following command on worker 1:
+sudo hostnamectl set-hostname worker-node-1.example.com
+exec bash
+
+#Type the following command on worker 2:
+sudo hostnamectl set-hostname worker-node-2.example.com
+exec bash
+
+#In case of failure reset everything
+
+sudo kubeadm reset --force
+
+#Note: Run the following command if an error occurs on the master and all nodes while executing kubeadm:
+sudo mkdir /etc/docker
+sudo tee /etc/docker/daemon.json 0<<EOF
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+
+sudo systemctl enable docker
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+sudo swapoff -a
+
+#Now you can retry the initialization
+log=${HOME}/install-leader.log
+pod_network_cidr=192.168.0.0/16
+
+sudo kubeadm init --pod-network-cidr ${pod_network_cidr} --ignore-preflight-errors all 2>&1 | tee --append ${l
