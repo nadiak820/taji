@@ -10,11 +10,8 @@ exec bash
 sudo hostnamectl set-hostname worker-node-2.example.com
 exec bash
 
-#In case of failure reset everything
-
+#Note: Run the following command on the master and ALL nodes:
 sudo kubeadm reset --force
-
-#Note: Run the following command if an error occurs on the master and all nodes while executing kubeadm:
 sudo mkdir /etc/docker
 sudo tee /etc/docker/daemon.json 0<<EOF
 {
@@ -26,14 +23,66 @@ sudo tee /etc/docker/daemon.json 0<<EOF
   "storage-driver": "overlay2"
 }
 EOF
-
 sudo systemctl enable docker
 sudo systemctl daemon-reload
 sudo systemctl restart docker
 sudo swapoff -a
 
-#Now you can retry the initialization
+#Now you can run the following commands on the master node:
 log=${HOME}/install-leader.log
 pod_network_cidr=192.168.0.0/16
+sudo kubeadm init --pod-network-cidr ${pod_network_cidr} --ignore-preflight-errors all 2>&1 | tee ${log}
 
-sudo kubeadm init --pod-network-cidr ${pod_network_cidr} --ignore-preflight-errors all 2>&1 | tee --append ${l
+#Run the following commands on the master node to allow non-root users to access use kubeadm:
+mkdir -p ${HOME}/.kube
+sudo cp /etc/kubernetes/admin.conf ${HOME}/.kube/config
+sudo chown -R $( id -u ):$( id -g ) ${HOME}/.kube/
+echo 'source <(kubectl completion bash)' | tee --append ${HOME}/.bashrc
+source ${HOME}/.bashrc
+
+#Type the following command to add the Weave Net CNI plugin for highly available clusterUse:
+kubectl apply -f https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')
+
+#Run the following command for joining the worker nodes to the cluster and save it:
+sudo kubeadm token create --print-join-command
+
+#Go to Worker1 node and run the kubeadm join command copied in the previous step to join this node as a worker node to the cluster:
+sudo kubeadm join x.x.x.x:6443 --token xxx.xxx --discovery-token-ca-cert-hash sha256:xxxxxx 
+
+#Go to the Worker2 node and repeat the previous step to join this node as a worker node to the cluster
+#Navigate to the master node tab and verify the nodes that are added to the cluster
+
+#Run the following commands:
+kubectl get nodes
+Output:
+labsuser@master:~$ kubectl get nodes
+NAME                        STATUS   ROLES                  AGE     VERSION
+master.example.com          Ready    control-plane,master   18m     v1.23.4
+worker-node-1.example.com   Ready    <none>                 7m54s   v1.23.4
+worker-node-2.example.com   Ready    <none>                 7m12s   v1.23.4
+
+kubectl get namespaces
+Output:
+labsuser@master:~$ kubectl get namespaces
+NAME              STATUS   AGE
+default           Active   28m
+kube-node-lease   Active   28m
+kube-public       Active   28m
+kube-system       Active   28m
+
+kubectl get pods --all-namespaces
+Output:
+labsuser@master:~$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                                         READY   STATUS    RESTARTS      AGE
+kube-system   coredns-64897985d-2r9dp                      1/1     Running   0             29m
+kube-system   coredns-64897985d-s9prz                      1/1     Running   0             29m
+kube-system   etcd-master.example.com                      1/1     Running   0             29m
+kube-system   kube-apiserver-master.example.com            1/1     Running   0             29m
+kube-system   kube-controller-manager-master.example.com   1/1     Running   0             29m
+kube-system   kube-proxy-28hdz                             1/1     Running   2 (16m ago)   17m
+kube-system   kube-proxy-52xsf                             1/1     Running   2 (16m ago)   18m
+kube-system   kube-proxy-rqx4r                             1/1     Running   0             29m
+kube-system   kube-scheduler-master.example.com            1/1     Running   0             29m
+kube-system   weave-net-6kmwk                              2/2     Running   3 (16m ago)   18m
+kube-system   weave-net-kkh6z                              2/2     Running   3 (16m ago)   17m
+kube-system   weave-net-ngkmf                              2/2     Running   1 (27m ago)   27m
