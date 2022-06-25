@@ -87,3 +87,52 @@ kube-system   weave-net-6kmwk                              2/2     Running   3 (
 kube-system   weave-net-kkh6z                              2/2     Running   3 (16m ago)   17m
 kube-system   weave-net-ngkmf                              2/2     Running   1 (27m ago)   27m
 
+Experiment to demonstrate Kubernetes networking with IPtables:
+
+kubectl apply -f https://raw.githubusercontent.com/academiaonline-org/phpinfo/main/kube-compose-po-echo.yaml
+kubectl get all
+Wait until the deployment is stable and then continue with the following commands:
+
+#Retrieve the Node Port for the deployed service:
+nodePort=$( kubectl get svc/phpinfo-po-echo | awk -F : /TCP/'{ print $2 }' | cut -d / -f 1 )
+#Retrieve the CHAIN for the Service associated with that Node Port:
+kube_svc=$( sudo iptables -S -t nat | grep A.KUBE-NODEPORTS.*${nodePort} | awk '{ print $14 }' )
+#Retrieve the CHAIN for the Target associated to that Service:
+kube_sep=$( sudo iptables -S -t nat | grep A.${kube_svc}.*KUBE-SEP | awk '{ print $8 }' )
+#Retrieve the IP address and Port of the target:
+destination=$( sudo iptables -S -t nat | grep A.${kube_sep}.*DNAT | awk '{ print $14 }' )
+To view the IP tables rules:
+
+kubectl get svc/phpinfo-po-echo
+sudo iptables -S -t nat | grep A.KUBE-NODEPORTS.*${nodePort}
+sudo iptables -S -t nat | grep A.${kube_svc}.*KUBE-SEP
+sudo iptables -S -t nat | grep A.${kube_sep}.*DNAT
+
+Let us delete the deployment and check that the IP tables rules have been immediately removed:
+
+kubectl delete -f https://raw.githubusercontent.com/academiaonline-org/phpinfo/main/kube-compose-po-echo.yaml
+kubectl get svc/phpinfo-po-echo
+sudo iptables -S -t nat | grep A.KUBE-NODEPORTS.*${nodePort}
+sudo iptables -S -t nat | grep A.${kube_svc}.*KUBE-SEP
+sudo iptables -S -t nat | grep A.${kube_sep}.*DNAT
+
+Now redeploy:
+
+kubectl apply -f https://raw.githubusercontent.com/academiaonline-org/phpinfo/main/kube-compose-po-echo.yaml
+kubectl get all
+Wait until the deployment is stable again and then continue with the following commands:
+
+#Retrieve the Node Port for the deployed service:
+nodePort=$( kubectl get svc/phpinfo-po-echo | awk -F : /TCP/'{ print $2 }' | cut -d / -f 1 )
+#Retrieve the CHAIN for the Service associated with that Node Port:
+kube_svc=$( sudo iptables -S -t nat | grep A.KUBE-NODEPORTS.*${nodePort} | awk '{ print $14 }' )
+#Retrieve the CHAIN for the Target associated to that Service:
+kube_sep=$( sudo iptables -S -t nat | grep A.${kube_svc}.*KUBE-SEP | awk '{ print $8 }' )
+#Retrieve the IP address and Port of the target:
+destination=$( sudo iptables -S -t nat | grep A.${kube_sep}.*DNAT | awk '{ print $14 }' )
+To view the IP tables rules:
+
+kubectl get svc/phpinfo-po-echo
+sudo iptables -S -t nat | grep A.KUBE-NODEPORTS.*${nodePort}
+sudo iptables -S -t nat | grep A.${kube_svc}.*KUBE-SEP
+sudo iptables -S -t nat | grep A.${kube_sep}.*DNAT
