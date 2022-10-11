@@ -10,7 +10,7 @@ exec bash
 sudo hostnamectl set-hostname worker-node-2.example.com
 exec bash
 
-#Note: Run the following command on the master and ALL nodes:
+#Note: Run the following command on the master and ##ALL nodes:                             
 sudo kubeadm reset --force
 sudo mkdir /etc/docker
 sudo tee /etc/docker/daemon.json 0<<EOF
@@ -26,7 +26,7 @@ EOF
 sudo systemctl enable docker
 sudo systemctl daemon-reload
 sudo systemctl restart docker
-sudo swapoff -a
+sudo swapoff -a                                 Not required on nodes/slaves
 
 #Now you can run the following commands on the master node:
 log=${HOME}/install-leader.log
