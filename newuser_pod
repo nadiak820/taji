@@ -1,3 +1,5 @@
+https://github.com/academiaonline-org/dca/blob/main/caltech_2022-09/2022-10-02.md
+
 Note: Command for namespace creation:
                 kubectl create ns test
 Incase you want to Deploy any app, use below command:
