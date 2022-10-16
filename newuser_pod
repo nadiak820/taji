@@ -1,0 +1,34 @@
+Note: Command for namespace creation:
+                kubectl create ns test
+Incase you want to Deploy any app, use below command:
+            kubectl -n test --kubeconfig=nadikubeconfig  create deployment --image=nginx nginx-app
+            
+ Test Namespace   kubectl get pods –namespace=test
+========================================================================================================================
+	Create directory namely “certs” & then access the same.
+    mkdir /home/certs $ cd /home/certs  
+    cd /home/certs $ cd /home/certs
+ 
+	Generate Private key for the user nadi
+   openssl genrsa -out nadi.key 2048
+
+	Generate a certificate signing request (nadi.csr)
+   openssl req -new -key nadi.key -out nadi.csr -subj "/CN=winner/O=test"
+
+	Sign the certificate using certificate authority, 3 months validity
+  openssl x509 -req -in nadi.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out nadi.crt -days 90
+
+	Copy conf file so that it can be edited & also update this file, by making few directory changes & remove “-data”. Also need to update newly created user “nadi”.
+   cp /etc/kubernetes/admin.conf nadi.conf         {necessary changes are in Infra Optimization pdf}
+   
+	Time to code role & role binding, link is below & also create same by using below command:
+  https://github.com/nadiak820/devOps_repo/blob/main/user 
+  kubectl create -f rbac.yml
+
+	Now validate assigned role & role-binding:
+kubectl describe role role-pods --namespace=test
+kubectl describe rolebinding rolebinding-pods --namespace=test
+
+	Now let us verify pod with namespace “test” after assigning RBAC role to user “nadi”
+kubectl --kubeconfig=/home/certs/nadi.conf get pods --namespace=test
+
